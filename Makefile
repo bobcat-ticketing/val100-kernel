@@ -8,7 +8,7 @@ PATCH_URL=	http://downloads.access-is.com/Vasttrafik/access_val130.zip
 PATCH_ZIP=	access_val130.zip
 PATCH_FILE=	access_val130.patch
 
-KERNEL_CONFIG=	val100_kernel_config
+KERNEL_CONFIG=	val100_kernel_config.txt
 
 CLEANFILES=	$(SOURCE_TGZ) $(PATCH_ZIP) $(PATCH_FILE)
 
