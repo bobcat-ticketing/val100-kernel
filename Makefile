@@ -32,7 +32,7 @@ $(SOURCE_DIR): $(SOURCE_TGZ)
 $(PATCH_ZIP):
 	curl -o $@ $(PATCH_URL)
 
-$(PATCH_FILE):
+$(PATCH_FILE): $(PATCH_ZIP)
 	unzip $(PATCH_ZIP)
 
 clean:
