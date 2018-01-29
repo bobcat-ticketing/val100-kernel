@@ -8,6 +8,10 @@ PATCH_URL=	http://downloads.access-is.com/Vasttrafik/access_val130.zip
 PATCH_ZIP=	access_val130.zip
 PATCH_FILE=	access_val130.patch
 
+DOCKER_DIR=	docker
+DOCKER_WORKDIR=	/usr/src/linux
+DOCKER_IMAGE=	builder
+
 KERNEL_CONFIG=	val100_kernel_config.txt
 
 CLEANFILES=	$(SOURCE_TGZ) $(PATCH_ZIP) $(PATCH_FILE)
@@ -21,7 +25,17 @@ extract: $(SOURCE_DIR)
 
 patch: $(SOURCE_DIR) $(PATCH_FILE)
 	-(cd $(SOURCE_DIR); patch -p2 -f < ../$(PATCH_FILE))
+	-(cd $(SOURCE_DIR)/include/linux; ln -s compiler-gcc4.h compiler-gcc6.h)
 	cp $(KERNEL_CONFIG) $(SOURCE_DIR)/.config
+	(cd $(SOURCE_DIR); make savedefconfig)
+
+container:
+	mkdir $(DOCKER_DIR)
+	cp Dockerfile $(DOCKER_DIR)
+	docker build -t $(DOCKER_IMAGE) $(DOCKER_DIR)
+
+compile:
+	docker run -it --rm -v `pwd`/$(SOURCE_DIR):$(DOCKER_WORKDIR) --workdir $(DOCKER_WORKDIR) $(DOCKER_IMAGE) /bin/bash
 
 $(SOURCE_TGZ):
 	curl -o $@ $(SOURCE_URL)
@@ -37,6 +51,7 @@ $(PATCH_FILE): $(PATCH_ZIP)
 
 clean:
 	rm -fr $(SOURCE_DIR)
+	rm -fr $(DOCKER_DIR)
 	rm -f $(PATCH_FILE)
 
 realclean: clean
