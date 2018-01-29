@@ -11,6 +11,7 @@ PATCH_FILE=	access_val130.patch
 DOCKER_DIR=	docker
 DOCKER_WORKDIR=	/usr/src/linux
 DOCKER_IMAGE=	builder
+DOCKER_USER=	root
 
 KERNEL_CONFIG=	val100_kernel_config.txt
 
@@ -29,13 +30,19 @@ patch: $(SOURCE_DIR) $(PATCH_FILE)
 	cp $(KERNEL_CONFIG) $(SOURCE_DIR)/.config
 	(cd $(SOURCE_DIR); make savedefconfig)
 
-container:
+$(DOCKER_DIR):
 	mkdir $(DOCKER_DIR)
+
+container: $(DOCKER_DIR)
 	cp Dockerfile $(DOCKER_DIR)
 	docker build -t $(DOCKER_IMAGE) $(DOCKER_DIR)
 
 compile:
-	docker run -it --rm -v `pwd`/$(SOURCE_DIR):$(DOCKER_WORKDIR) --workdir $(DOCKER_WORKDIR) $(DOCKER_IMAGE) /bin/bash
+	docker run -it --rm \
+		--user $(DOCKER_USER) \
+		--volume `pwd`/$(SOURCE_DIR):$(DOCKER_WORKDIR) \
+		--workdir $(DOCKER_WORKDIR) \
+		 $(DOCKER_IMAGE) /bin/bash
 
 $(SOURCE_TGZ):
 	curl -o $@ $(SOURCE_URL)
