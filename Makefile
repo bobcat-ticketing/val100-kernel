@@ -1,5 +1,5 @@
 DOCKER_DIR=	docker
-DOCKER_WORKDIR=	/usr/src/linux
+DOCKER_WORKDIR=	/home/bob
 DOCKER_IMAGE=	builder
 DOCKER_USER=	bob
 
@@ -18,24 +18,21 @@ PATCH_URL=	http://downloads.access-is.com/Vasttrafik/access_val130.zip
 PATCH_ZIP=	access_val130.zip
 PATCH_FILE=	access_val130.patch
 
-DOCKER_DIR=	docker
-DOCKER_WORKDIR=	/home/bob
-DOCKER_IMAGE=	builder
-DOCKER_USER=	bob
-
-KERNEL_CONFIG=	val100_kernel_config.txt
-
-CLEANFILES=	$(SOURCE_TGZ) $(PATCH_ZIP) $(PATCH_FILE)
+CLEANFILES=	$(SOURCE_TGZ) $(BUILDROOT_TGZ) $(PATCH_ZIP) $(PATCH_FILE)
 
 
 all: fetch extract patch
 
 fetch: $(SOURCE_TGZ) $(PATCH_ZIP) $(BUILDROOT_TGZ)
 
-extract: $(SOURCE_DIR) $(BUILDROOT_DIR)
+extract: source buildroot
 
 patch: $(SOURCE_DIR) $(PATCH_FILE)
 	-(cd $(SOURCE_DIR); patch -p2 -f < ../../$(PATCH_FILE))
+
+source: $(SOURCE_DIR)
+
+buildroot: $(BUILDROOT_DIR)
 
 $(DOCKER_DIR):
 	mkdir $(DOCKER_DIR)
