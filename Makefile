@@ -19,7 +19,7 @@ PATCH_ZIP=	access_val130.zip
 PATCH_FILE=	access_val130.patch
 
 DOCKER_DIR=	docker
-DOCKER_WORKDIR=	/usr/src/linux
+DOCKER_WORKDIR=	/home/bob
 DOCKER_IMAGE=	builder
 DOCKER_USER=	bob
 
@@ -41,7 +41,7 @@ $(DOCKER_DIR):
 	mkdir $(DOCKER_DIR)
 
 container: $(DOCKER_DIR)
-	cp Dockerfile val*.txt $(DOCKER_DIR)
+	cp Dockerfile build.sh val*.txt $(DOCKER_DIR)
 	docker build -t $(DOCKER_IMAGE) $(DOCKER_DIR)
 
 compile:
