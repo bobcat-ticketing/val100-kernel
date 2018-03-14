@@ -2,7 +2,35 @@
 FROM debian:stable
 
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y build-essential libncurses5-dev gcc bc curl git lzop u-boot-tools wget cpio python unzip locales-all
+RUN apt-get install -y \
+	autoconf \
+	automake \
+	bc \
+	bison \
+	build-essential \
+	cpio \
+	curl \
+	cvs \
+	flex \
+	gawk \
+	gcc \
+	git \
+	gperf \
+	libexpat-dev \
+	libncurses5-dev \
+	libtool \
+	locales-all \
+	lzop \
+	patch \
+	pkg-config \
+	python \
+	python-dev \
+	screen \
+	texinfo \
+	u-boot-tools \
+	unzip \
+	wget
+
 RUN useradd -u 4242 -c "Bob the Builder" bob
 
 ENV BUILDROOT_DIR=buildroot-2015.05
