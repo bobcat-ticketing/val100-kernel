@@ -8,22 +8,21 @@ SOURCE_URL=		https://cdn.kernel.org/pub/linux/kernel/v3.x/linux-$(SOURCE_VERSION
 SOURCE_TGZ=		linux-$(SOURCE_VERSION).tar.gz
 SOURCE_DIR=		$(DOCKER_DIR)/linux-$(SOURCE_VERSION)
 
-BUILDROOT_VERSION=	2015.05
-BUILDROOT_URL=		https://buildroot.org/downloads/buildroot-$(BUILDROOT_VERSION).tar.gz
-BUILDROOT_TGZ=		buildroot-$(BUILDROOT_VERSION).tar.gz
-BUILDROOT_DIR=		$(DOCKER_DIR)/buildroot-$(BUILDROOT_VERSION)
+BUILDROOT_REPO=		https://github.com/kirei/val100-buildroot
+BUILDROOT_BRANCH=	2015.05.access-is
+BUILDROOT_DIR=		$(DOCKER_DIR)/buildroot
 BUILDROOT_WORKDIR=	/usr/src/buildroot
 
 PATCH_URL=	http://downloads.access-is.com/Vasttrafik/access_val130.zip
 PATCH_ZIP=	access_val130.zip
 PATCH_FILE=	access_val130.patch
 
-CLEANFILES=	$(SOURCE_TGZ) $(BUILDROOT_TGZ) $(PATCH_ZIP) $(PATCH_FILE)
+CLEANFILES=	$(SOURCE_TGZ) $(PATCH_ZIP) $(PATCH_FILE)
 
 
 all: fetch extract patch
 
-fetch: $(SOURCE_TGZ) $(PATCH_ZIP) $(BUILDROOT_TGZ)
+fetch: $(SOURCE_TGZ) $(PATCH_ZIP)
 
 extract: source buildroot
 
@@ -37,7 +36,7 @@ buildroot: $(BUILDROOT_DIR)
 $(DOCKER_DIR):
 	mkdir $(DOCKER_DIR)
 
-container: $(DOCKER_DIR)
+container: $(DOCKER_DIR) buildroot
 	cp Dockerfile build.sh val*.txt $(DOCKER_DIR)
 	docker build -t $(DOCKER_IMAGE) $(DOCKER_DIR)
 
@@ -53,11 +52,8 @@ $(SOURCE_TGZ):
 $(SOURCE_DIR): $(SOURCE_TGZ) $(DOCKER_DIR)
 	tar --extract --gunzip -C $(DOCKER_DIR) -f $(SOURCE_TGZ)
 
-$(BUILDROOT_TGZ):
-	curl -o $@ $(BUILDROOT_URL)
-
-$(BUILDROOT_DIR): $(BUILDROOT_TGZ) $(DOCKER_DIR)
-	tar --extract --gunzip -C $(DOCKER_DIR) -f $(BUILDROOT_TGZ)
+$(BUILDROOT_DIR): $(DOCKER_DIR)
+	git clone --single-branch --branch $(BUILDROOT_BRANCH) $(BUILDROOT_REPO) $(BUILDROOT_DIR)
 
 $(PATCH_ZIP):
 	curl -o $@ $(PATCH_URL)

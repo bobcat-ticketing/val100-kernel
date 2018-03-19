@@ -33,7 +33,7 @@ RUN apt-get install -y \
 
 RUN useradd -u 4242 -c "Bob the Builder" bob
 
-ENV BUILDROOT_DIR=buildroot-2015.05
+ENV BUILDROOT_DIR=buildroot
 ENV LINUX_DIR=linux-3.14.14
 ENV BR2_CONFIG=/home/bob/val130_config.txt
 
