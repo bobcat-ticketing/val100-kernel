@@ -66,8 +66,8 @@ $(PATCH_FILE): $(PATCH_ZIP)
 	unzip $(PATCH_ZIP)
 
 clean:
-	rm -fr $(SOURCE_DIR)
 	rm -fr $(DOCKER_DIR)
+	rm -fr $(SOURCE_DIR)
 	rm -f $(PATCH_FILE)
 
 realclean: clean
