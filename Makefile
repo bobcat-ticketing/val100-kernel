@@ -31,7 +31,7 @@ buildroot: $(BUILDROOT_DIR)
 $(DOCKER_DIR):
 	mkdir $(DOCKER_DIR)
 
-container: $(DOCKER_DIR) buildroot
+container: $(DOCKER_DIR) linux buildroot
 	cp Dockerfile build.sh val*.txt $(DOCKER_DIR)
 	docker build -t $(DOCKER_IMAGE) $(DOCKER_DIR)
 
