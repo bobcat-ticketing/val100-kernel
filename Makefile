@@ -3,33 +3,28 @@ DOCKER_WORKDIR=	/home/bob
 DOCKER_IMAGE=	builder
 DOCKER_USER=	bob
 
-SOURCE_VERSION=		3.14.14
-SOURCE_URL=		https://cdn.kernel.org/pub/linux/kernel/v3.x/linux-$(SOURCE_VERSION).tar.gz
-SOURCE_TGZ=		linux-$(SOURCE_VERSION).tar.gz
-SOURCE_DIR=		$(DOCKER_DIR)/linux-$(SOURCE_VERSION)
+LINUX_BRANCH=		v3.14.14.access-is
+LINUX_REPO_NAME=	val100-linux
+LINUX_REPO_URL=		https://github.com/kirei/$(LINUX_REPO_NAME)
+LINUX_ZIP_URL=		https://codeload.github.com/kirei/$(LINUX_REPO_NAME)/zip/$(LINUX_BRANCH)
+LINUX_ZIP_FILE=		linux.zip
+LINUX_DIR=		$(DOCKER_DIR)/linux
 
-BUILDROOT_REPO=		https://github.com/kirei/val100-buildroot
 BUILDROOT_BRANCH=	2015.05.access-is
+BUILDROOT_REPO_NAME=	val100-buildroot
+BUILDROOT_REPO_URL=	https://github.com/kirei/$(BUILDROOT_REPO_NAME)
+BUILDROOT_ZIP_URL=	https://codeload.github.com/kirei/$(BUILDROOT_REPO_NAME)/zip/$(BUILDROOT_BRANCH)
+BUILDROOT_ZIP_FILE=	buildroot.zip
 BUILDROOT_DIR=		$(DOCKER_DIR)/buildroot
-BUILDROOT_WORKDIR=	/usr/src/buildroot
-
-PATCH_URL=	http://downloads.access-is.com/Vasttrafik/access_val130.zip
-PATCH_ZIP=	access_val130.zip
-PATCH_FILE=	access_val130.patch
-
-CLEANFILES=	$(SOURCE_TGZ) $(PATCH_ZIP) $(PATCH_FILE)
 
 
-all: fetch extract patch
+all: extract container
 
-fetch: $(SOURCE_TGZ) $(PATCH_ZIP)
+extract: linux buildroot
 
-extract: source buildroot
+fetch: $(LINUX_ZIP_FILE) $(BUILDROOT_ZIP_FILE)
 
-patch: $(SOURCE_DIR) $(PATCH_FILE)
-	-(cd $(SOURCE_DIR); patch -p2 -f < ../../$(PATCH_FILE))
-
-source: $(SOURCE_DIR)
+linux: $(LINUX_DIR)
 
 buildroot: $(BUILDROOT_DIR)
 
@@ -46,25 +41,27 @@ compile:
 		--workdir $(DOCKER_WORKDIR) \
 		 $(DOCKER_IMAGE) /bin/bash
 
-$(SOURCE_TGZ):
-	curl -o $@ $(SOURCE_URL)
+$(LINUX_DIR): $(DOCKER_DIR) $(LINUX_ZIP_FILE)
+	#git clone --single-branch --branch $(LINUX_BRANCH) $(LINUX_REPO_URL) $(LINUX_DIR)
+	unzip -d $(DOCKER_DIR) $(LINUX_ZIP_FILE)
+	mv $(DOCKER_DIR)/$(LINUX_REPO_NAME)-* $(DOCKER_DIR)/linux
 
-$(SOURCE_DIR): $(SOURCE_TGZ) $(DOCKER_DIR)
-	tar --extract --gunzip -C $(DOCKER_DIR) -f $(SOURCE_TGZ)
 
-$(BUILDROOT_DIR): $(DOCKER_DIR)
-	git clone --single-branch --branch $(BUILDROOT_BRANCH) $(BUILDROOT_REPO) $(BUILDROOT_DIR)
+$(BUILDROOT_DIR): $(DOCKER_DIR) $(BUILDROOT_ZIP_FILE)
+	#git clone --single-branch --branch $(BUILDROOT_BRANCH) $(BUILDROOT_REPO_URL) $(BUILDROOT_DIR)
+	unzip -d $(DOCKER_DIR) $(BUILDROOT_ZIP_FILE)
+	mv $(DOCKER_DIR)/$(BUILDROOT_REPO_NAME)-* $(DOCKER_DIR)/buildroot
 
-$(PATCH_ZIP):
-	curl -o $@ $(PATCH_URL)
+$(LINUX_ZIP_FILE):
+	curl -o $@ $(LINUX_ZIP_URL)
 
-$(PATCH_FILE): $(PATCH_ZIP)
-	unzip $(PATCH_ZIP)
+$(BUILDROOT_ZIP_FILE):
+	curl -o $@ $(BUILDROOT_ZIP_URL)
 
 clean:
+	rm -fr $(LINUX_DIR)
+	rm -fr $(BUILDROOT_DIR)
 	rm -fr $(DOCKER_DIR)
-	rm -fr $(SOURCE_DIR)
-	rm -f $(PATCH_FILE)
 
 realclean: clean
-	rm -f $(CLEANFILES)
+	rm -f *.zip

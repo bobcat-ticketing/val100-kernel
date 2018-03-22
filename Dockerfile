@@ -1,5 +1,5 @@
-#FROM ubuntu:16.04
-FROM debian:stable
+FROM ubuntu:16.04
+#FROM debian:stable
 
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y \
@@ -13,7 +13,6 @@ RUN apt-get install -y \
 	cvs \
 	flex \
 	gawk \
-	gcc \
 	git \
 	gperf \
 	libexpat-dev \
@@ -23,22 +22,18 @@ RUN apt-get install -y \
 	lzop \
 	patch \
 	pkg-config \
-	python \
 	python-dev \
 	screen \
 	texinfo \
-	u-boot-tools \
 	unzip \
 	wget
 
 RUN useradd -u 4242 -c "Bob the Builder" bob
 
-ENV BUILDROOT_DIR=buildroot
-ENV LINUX_DIR=linux-3.14.14
 ENV BR2_CONFIG=/home/bob/val130_config.txt
 
-COPY --chown=bob $BUILDROOT_DIR /usr/src/buildroot
-COPY --chown=bob $LINUX_DIR /usr/src/linux
+COPY --chown=bob buildroot /usr/src/buildroot
+COPY --chown=bob linux /usr/src/linux
 COPY --chown=bob *_config.txt /home/bob/
 COPY --chown=bob build.sh /home/bob/
 
